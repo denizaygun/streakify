@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 
-	"../models"
+	"github.com/denizaygun/streakify/models"
 )
 
 // GetAllStreaks ...
