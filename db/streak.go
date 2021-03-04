@@ -28,8 +28,8 @@ func (db Database) GetAllStreaks() (*models.StreakList, error) {
 func (db Database) AddStreak(streak *models.Streak) error {
 	var id int
 	var createdAt string
-	query := `INSERT INTO streaks (name, description, count) VALUES ($1, $2, $3) RETURNING id, created_at`
-	err := db.Conn.QueryRow(query, streak.Name, streak.Description, streak.Count).Scan(&id, &createdAt, 0)
+	query := `INSERT INTO streaks (name, description) VALUES ($1, $2) RETURNING id, created_at`
+	err := db.Conn.QueryRow(query, streak.Name, streak.Description).Scan(&id, &createdAt)
 	if err != nil {
 		return err
 	}
