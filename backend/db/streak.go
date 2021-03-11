@@ -15,7 +15,7 @@ func (db Database) GetAllStreaks() (*models.StreakList, error) {
 	}
 	for rows.Next() {
 		var streak models.Streak
-		err := rows.Scan(&streak.ID, &streak.Name, &streak.Description, &streak.Icon, &streak.Count, &streak.CreatedAt, &streak.UpdatedAt)
+		err := rows.Scan(&streak.ID, &streak.Name, &streak.Icon, &streak.Description, &streak.Count, &streak.CreatedAt, &streak.UpdatedAt)
 		if err != nil {
 			return list, err
 		}
