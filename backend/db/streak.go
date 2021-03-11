@@ -15,7 +15,7 @@ func (db Database) GetAllStreaks() (*models.StreakList, error) {
 	}
 	for rows.Next() {
 		var streak models.Streak
-		err := rows.Scan(&streak.ID, &streak.Name, &streak.Description, &streak.Count, &streak.CreatedAt, &streak.UpdatedAt)
+		err := rows.Scan(&streak.ID, &streak.Name, &streak.Description, &streak.Icon, &streak.Count, &streak.CreatedAt, &streak.UpdatedAt)
 		if err != nil {
 			return list, err
 		}
@@ -28,8 +28,8 @@ func (db Database) GetAllStreaks() (*models.StreakList, error) {
 func (db Database) AddStreak(streak *models.Streak) error {
 	var id int
 	var createdAt string
-	query := `INSERT INTO streaks (name, description) VALUES ($1, $2) RETURNING id, created_at`
-	err := db.Conn.QueryRow(query, streak.Name, streak.Description).Scan(&id, &createdAt)
+	query := `INSERT INTO streaks (name, description, icon) VALUES ($1, $2, $3) RETURNING id, created_at`
+	err := db.Conn.QueryRow(query, streak.Name, streak.Description, streak.Icon).Scan(&id, &createdAt)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (db Database) GetStreakByID(streakID int) (models.Streak, error) {
 	streak := models.Streak{}
 	query := `SELECT * FROM streaks WHERE id = $1;`
 	row := db.Conn.QueryRow(query, streakID)
-	switch err := row.Scan(&streak.ID, &streak.Name, &streak.Description, &streak.Count, &streak.CreatedAt, &streak.UpdatedAt); err {
+	switch err := row.Scan(&streak.ID, &streak.Name, &streak.Description, &streak.Icon, &streak.Count, &streak.CreatedAt, &streak.UpdatedAt); err {
 	case sql.ErrNoRows:
 		return streak, ErrNoMatch
 	default:
@@ -66,8 +66,8 @@ func (db Database) DeleteStreak(streakID int) error {
 // UpdateStreak ...
 func (db Database) UpdateStreak(streakID int, streakData models.Streak) (models.Streak, error) {
 	streak := models.Streak{}
-	query := `UPDATE streaks SET name=$1, description=$2, count=$s3, updated_at=$s4 WHERE id=$5 RETURNING id, name, description, count, created_at, updated_at;`
-	err := db.Conn.QueryRow(query, streakData.Name, streakData.Description, streakData.Count+1, `CURRENT_TIMESTAMP`, streakID).Scan(&streak.ID, &streak.Name, &streak.Description, &streak.Count, &streak.CreatedAt, &streak.UpdatedAt)
+	query := `UPDATE streaks SET name=$1, description=$2, count=$s3, icon=$s4, updated_at=$s5 WHERE id=$6 RETURNING id, name, description, count, icon, created_at, updated_at;`
+	err := db.Conn.QueryRow(query, streakData.Name, streakData.Description, streakData.Count+1, streakData.Icon, `CURRENT_TIMESTAMP`, streakID).Scan(&streak.ID, &streak.Name, &streak.Description, &streak.Count, &streak.Icon, &streak.CreatedAt, &streak.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return streak, ErrNoMatch
