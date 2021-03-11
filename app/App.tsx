@@ -1,27 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { SafeAreaView, View, FlatList, StyleSheet, Text, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, View, ActivityIndicator, FlatList, StyleSheet, Text, TextInput } from 'react-native';
 
-const DATA = [
-    {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        name: 'duolingo',
-        icon: '📚',
-        count: 185,
-    },
-    {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        icon: '💪',
-        name: '10 pressups everyday',
-        count: 2,
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        name: 'develop app',
-        icon: '💻',
-        count: 5,
-    },
-];
+const host = "http://192.168.0.33:8080"
 
 const Item = ({ name, icon, count }) => (
     <View style={styles.item}>
@@ -39,26 +20,36 @@ const Item = ({ name, icon, count }) => (
 );
 
 const App = () => {
+    const [isLoading, setLoading] = useState(true);
+    const [data, setData] = useState([]);
+
     const renderItem = ({ item }) => (
         <Item name={item.name} icon={item.icon} count={item.count} />
     );
 
+    useEffect(() => {
+        fetch(`${host}/streaks`)
+            .then((response) => response.json())
+            .then((json) => setData(json.streaks))
+            .catch((error) => console.error(error))
+            .finally(() => setLoading(false));
+    }, []);
+
     return (
         <SafeAreaView style={styles.container}>
             <Text style={{ fontSize: 28, padding: 20 }}>Streakify</Text>
-                        
+
             <TextInput
                 style={{ height: 80, padding: 20, fontSize: 18 }}
                 placeholder="add new streak..."
             />
-
-            <FlatList
-                data={DATA}
-                renderItem={renderItem}
-                keyExtractor={item => item.id}
-            />
-
-
+            {isLoading ? <ActivityIndicator /> : (
+                <FlatList
+                    data={data}
+                    renderItem={renderItem}
+                    keyExtractor={({ id }, index) => id}
+                />
+            )}
             <StatusBar style="auto" />
         </SafeAreaView>
     );
@@ -77,7 +68,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
     },
     name: {
-        fontSize: 20,
+        fontSize: 18,
     },
 });
 
